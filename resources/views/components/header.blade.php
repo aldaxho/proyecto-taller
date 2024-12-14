@@ -17,9 +17,19 @@
                         <ul class="dropdown-menu">
                             <li><a href="{{route('courses.index')}}" class="dropdown-item">Ver Cursos</a></li>
                             @auth
-                            <li><a href="{{route('client.courses.create')}}" class="dropdown-item">Crear Curso</a></li>
-                            <li><a href="{{route('mis-cursos')}}" class="dropdown-item">Tus Cursos</a></li>
-                            <li><a href="account-security.html" class="dropdown-item">Cursos Comprados</a></li>
+                            @php
+                            $permiso = Auth::user()->evaluations()->where('permiso', true)->exists();
+                            @endphp
+
+                        @if ($permiso)
+                            <li><a href="{{ route('client.courses.create') }}" class="dropdown-item">Crear Curso</a></li>
+                            <li><a href="{{ route('mis-cursos') }}" class="dropdown-item">Tus Cursos</a></li>
+                        @else
+                            <li><a href="{{ route('evaluation.create') }}" class="dropdown-item">Solicitar Permiso para Crear Curso</a></li>
+                        @endif
+
+                       
+                        <li><a href="account-security.html" class="dropdown-item">Cursos Comprados</a></li>
                             @endauth
 
 
@@ -37,17 +47,25 @@
 
                         </ul>
                     </li>
+                    @auth
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Planes de
                             Estudio</a>
                         <ul class="dropdown-menu">
                             <li><a href="{{route('plan_estudio.create')}}" class="dropdown-item">Crear Plan de Estudio</a></li>
-                            <li><a href="account-details.html" class="dropdown-item">Ver Planes de Estudio</a></li>
+                            <li><a href="{{route('planes.index')}}" class="dropdown-item">Ver Planes de Estudio</a></li>
                             <li><a href="account-details.html" class="dropdown-item">Tus Planes de Estudio</a></li>
                         </ul>
                     </li>
+                    @endauth
+
 
                     @auth
+
+                     <!-- Mostrar nombre del usuario logueado -->
+                     <li class="nav-item">
+                        <span class="nav-link">Hola, {{ Auth::user()->nombre }}</span>
+                    </li>
                     <li class="nav-item">
 
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">

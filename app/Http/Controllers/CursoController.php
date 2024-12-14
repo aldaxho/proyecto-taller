@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Curso;
 use App\Models\Categoria;
+use App\Models\MaterialDidactico;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\Auth;
 class CursoController extends Controller
@@ -58,26 +59,43 @@ class CursoController extends Controller
 
     public function show($id)
     {
-        $curso = Curso::with('materiales')->findOrFail($id);
-
+        // Obtener el usuario autenticado
         $usuario = Auth::user();
+
         if (!$usuario) {
             return redirect()->route('login')->with('error', 'Debes iniciar sesión para acceder a los cursos.');
         }
 
+        // Cargar las relaciones de suscripciones y compras
+        $usuario->load('suscripciones', 'compras');
+
+        // Obtener el curso por ID
+        $curso = Curso::with('materiales')->findOrFail($id);
+
         // Verificar si el usuario ha comprado el curso
-        $haCompradoCurso = $usuario->compras()->where('curso_id', $curso->id)->exists();
+        $haCompradoCurso = $usuario->haCompradoCurso($curso->id);
 
-        // Verificar si el usuario es suscriptor
-        $esSuscriptor = $usuario->es_suscriptor; // Cambia esto según tu lógica de suscripciones
+        // Verificar si el usuario está suscrito
+        $esSuscriptor = $usuario->esSuscriptor;
 
-        // Pasar datos a la vista
+        // Lógica de materiales
+        if ($haCompradoCurso) {
+            $materiales = $curso->materiales;
+        } elseif ($esSuscriptor) {
+            $materiales = MaterialDidactico::all();
+        } else {
+            $materiales = [];
+        }
+
+        // Pasar las variables a la vista
         return view('client.courses.show', [
             'curso' => $curso,
+            'materiales' => $materiales,
             'haCompradoCurso' => $haCompradoCurso,
-            'esSuscriptor' => $esSuscriptor,
+            'esSuscriptor' => $esSuscriptor
         ]);
     }
+
 
 
     /**
@@ -165,6 +183,42 @@ class CursoController extends Controller
 
     return view('admin.secciones.CursoCrud', compact('cursosMasVendidos', 'cursoMejorCalificado'));
 }
+public function comprar($id)
+{
+    // Obtener el curso por ID
+    $curso = Curso::findOrFail($id);
 
+    // Enviar a la vista de Stripe con los detalles del curso
+    return view('suscripciones.stripe', [
+        'curso' => $curso,
+        'precio' => $curso->precio, // Asegúrate de tener un campo 'precio' en el modelo Curso
+    ]);
+}
+
+public function procesarPago(Request $request, $precio)
+{
+    try {
+        // Procesar el pago con Stripe
+        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        $paymentIntent = \Stripe\PaymentIntent::create([
+            'amount' => $precio * 100, // Stripe maneja centavos, por eso multiplicamos por 100
+            'currency' => 'usd',
+            'payment_method' => $request->input('stripeToken'),
+            'confirmation_method' => 'manual',
+            'confirm' => true,
+        ]);
+
+        // Si el pago fue exitoso, redirigir con mensaje
+        return redirect()
+            ->route('curso.detalles')
+            ->with('success', 'Curso comprado con éxito.');
+    } catch (\Exception $e) {
+        // Manejar errores de Stripe
+        return redirect()
+            ->back()
+            ->with('error', 'Hubo un error con el pago: ' . $e->getMessage());
+    }
+}
 
 }

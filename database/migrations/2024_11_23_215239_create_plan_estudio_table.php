@@ -12,13 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('plan_estudio', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('curso_id');
-            $table->string('nombre'); // Nombre del tema del plan de estudio
-            $table->timestamps();
-
-            // Llave foránea
-            $table->foreign('curso_id')->references('id')->on('cursos')->onDelete('cascade');
+            $table->id(); // Crea un campo auto-incremental 'id' como clave primaria
+            $table->string('nombre'); // Campo para el nombre del plan de estudio
+            $table->text('descripcion'); // Campo para la descripción del plan de estudio
+            $table->string('link')->nullable(); // Campo para el link, puede ser nulo
+            $table->foreignId('id_usuario')->constrained('usuarios')->onDelete('cascade'); // Relación con la tabla 'usuarios' (asumí que la tabla se llama 'usuarios')
+            $table->timestamps(); // Campos created_at y updated_at
         });
     }
 

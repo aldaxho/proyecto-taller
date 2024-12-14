@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Categoria;
 use App\Models\Curso;
+use App\Models\PlanEstudio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
 
 class PlanEstudioController extends Controller
 {
@@ -96,6 +98,8 @@ class PlanEstudioController extends Controller
                     }
                 }
 
+                // Guarda el plan de estudio en la base de datos
+                $this->guardarPlanAutomatico($cleanData);
 
                 // No necesitamos aplanar la lista
                 $cursos = collect($cleanData);
@@ -105,5 +109,41 @@ class PlanEstudioController extends Controller
         } catch (\Exception $e) {
             throw new \Exception("Error al consumir OpenAI: {$e->getMessage()}");
         }
+    }
+
+
+    private function guardarPlanAutomatico(array $cursos)
+    {
+        $usuarioId = Auth::user()->id;
+
+        foreach ($cursos as $nivel => $cursosNivel) {
+            foreach ($cursosNivel as $curso) {
+                PlanEstudio::create([
+                    'nombre' => $curso['nombre'],
+                    'descripcion' => $curso['descripcion'],
+                    'link' => $curso['link'] ?? null,
+                    'id_usuario' => $usuarioId,
+                ]);
+            }
+        }
+    }
+
+
+
+
+    /*cliente */
+    public function show(){
+         // Obtener el ID del usuario logueado
+    $userId = Auth::id();
+
+    // Obtener solo los planes del usuario logueado
+    $planes = PlanEstudio::where('id_usuario', $userId)->get();
+        return view('client.plan_estudio.showPlan',compact('planes'));
+    }
+    public function destroy($id)
+    {
+        $plan = PlanEstudio::findOrFail($id); // Buscar el plan por ID
+        $plan->delete(); // Eliminar el plan
+        return redirect()->route('planes.index')->with('success', 'Plan eliminado con éxito.');
     }
 }

@@ -13,13 +13,16 @@ class PlanEstudio extends Model
     protected $primaryKey = 'id'; // Clave primaria
 
     protected $fillable = [
-        'curso_id',
+
         'nombre',
+        'descripcion',
+        'link',
+        'id_usuario',
     ];
 
     // Relación con el modelo Curso
-    public function curso()
+   /* public function curso()
     {
         return $this->belongsTo(Curso::class, 'curso_id');
-    }
+    }*/
 }

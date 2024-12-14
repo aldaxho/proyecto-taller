@@ -2,11 +2,24 @@
 
 
 @section('content')
+
 <section class="position-relative py-5">
 
     <!-- Gradient BG -->
     <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-primary opacity-10"></div>
+    <div class="container mx-auto mt-10">
+        @if (session('status'))
+            <div class="bg-{{ session('status') == 'aprobado' ? 'green' : 'red' }}-100 text-{{ session('status') == 'aprobado' ? 'green' : 'red' }}-700 p-4 rounded mb-5">
+                {{ session('status') == 'aprobado' ? '¡Felicidades! Has sido aprobado para dictar cursos.' : 'Lo sentimos, tu solicitud fue rechazada.' }}
+            </div>
+        @endif
 
+        <h2 class="text-2xl font-bold mb-5">Bienvenido al Inicio</h2>
+
+        <a href="{{ route('evaluation.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Solicitar Nueva Evaluación
+        </a>
+    </div>
     <!-- Content -->
     <div class="container position-relative zindex-2 py-lg-4">
       <div class="row">
@@ -34,7 +47,7 @@
               <i class="bx bx-search"></i>
             </button>
           </form>
-          
+
           <!-- Mobile form -->
           <form class="d-sm-none mb-5">
             <input type="text" class="form-control form-control-lg mb-2" placeholder="Search courses...">

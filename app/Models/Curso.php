@@ -17,7 +17,7 @@ class Curso extends Model
         'categoria_id',
         'precio',
         'tiempo',
-
+        'calificacion',
         'estado',
         'fecha_creacion',
         'imagen',
@@ -50,10 +50,10 @@ public function calificaciones()
 }
 
 // Relación con el modelo PlanEstudio (temas asociados al curso)
-public function planEstudio()
+/*public function planEstudio()
 {
     return $this->hasMany(PlanEstudio::class, 'curso_id');
-}
+}*/
 public function usuarios()
 {
     return $this->belongsToMany(Usuario::class, 'compras', 'curso_id', 'usuario_id');

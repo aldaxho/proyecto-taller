@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Usuario extends Authenticatable
 {
@@ -48,5 +51,35 @@ public function calificaciones()
 {
     return $this->hasMany(Calificacion::class, 'usuario_id');
 }
+public function suscripciones()
+{
+    return $this->hasMany(Suscripcion::class, 'consumidor_id');
+}
+public function suscripcion()
+{
+    return $this->hasOne(Suscripcion::class, 'consumidor_id');
+}
+
+
+    // Accessor para verificar si el usuario está suscrito
+
+
+// Verifica si el usuario ha comprado un curso
+public function haCompradoCurso($cursoId)
+{
+    return $this->compras()->where('curso_id', $cursoId)->exists();
+}
+
+// Verifica si el usuario está suscrito
+public function getEsSuscriptorAttribute()
+{
+    return $this->suscripcion && $this->suscripcion->estado === 'activo';
+}
+
+public function evaluations(): HasMany
+{
+    return $this->hasMany(Evaluation::class, 'user_id');
+}
+
 
 }

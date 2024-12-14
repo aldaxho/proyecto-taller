@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plan de Estudio Generado</title>
+    <title>Plan 1  de Estudio Generado</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-purple-300 flex justify-center items-center min-h-screen">
@@ -30,6 +30,15 @@
                 </div>
             @endforeach
         </div>
+
+        <form action="{{ route('plan_estudio.guardar') }}" method="POST">
+            @csrf
+            <input type="hidden" name="cursos" value="{{ json_encode($cursos) }}">
+            <button type="submit" class="block mt-6 text-center bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700">
+                Guardar Plan
+            </button>
+        </form>
+
 
         <a href="{{ route('plan_estudio.create') }}" class="block mt-6 text-center bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-700">
             Volver

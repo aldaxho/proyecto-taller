@@ -8,6 +8,7 @@ use App\Http\Controllers\MaterialDidacticoController;
 use App\Http\Controllers\SuscripcionController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\PlanEstudioController;
+use App\Http\Controllers\EvaluationController;
 
 Route::get('/', function () {
     return view('client.home.index');
@@ -111,10 +112,18 @@ Route::post('cursos/{cursoId}/materiales', [MaterialDidacticoController::class, 
 Route::get('/curso/{id}/detalles', [CursoController::class, 'detalles'])->name('curso.detalles');
 //Route::get('/curso/{id}/detalles', [CursoController::class, 'show'])->name('curso.show');
 
-Route::get('/curso/{id}/comprar', [CursoController::class, 'comprar'])->name('curso.comprar');
+//Route::get('/curso/{id}/comprar', [CursoController::class, 'comprar'])->name('curso.comprar');
+Route::get('/curso/comprar/{id}', [CursoController::class, 'comprar'])->name('curso.comprar');
+Route::post('/stripe-post/{precio}', [CursoController::class, 'procesarPago'])->name('stripe.post');
 
 
 
+Route::get('/planes', [PlanEstudioController::class, 'show'])->name('planes.index');
+Route::delete('/planes/{id}', [PlanEstudioController::class, 'destroy'])->name('planes.destroy');
+
+Route::get('/evaluacion/solicitar', [EvaluationController::class, 'create'])->name('evaluation.create');
+Route::post('/evaluacion/solicitar', [EvaluationController::class, 'store'])->name('evaluation.store');
+Route::post('/evaluacion/generar', [EvaluationController::class, 'generate'])->name('evaluation.generate');
 });
 
 Route::get('plan', [SuscripcionController::class, 'plan'])->name('plan');
@@ -134,3 +143,5 @@ Route::get('/plan-estudio/create', [PlanEstudioController::class, 'create'])->na
 //Route::resource('/plan-estudio', PlanEstudioController::class)->names('plan_estudio');
 //Route::get('/plan-estudio/{id}', [PlanEstudioController::class, 'show'])->name('plan_estudio.show');
 Route::post('/plan-estudio/generar', [PlanEstudioController::class, 'generarPlandeEstudio'])->name('plan_estudio.generar');
+
+Route::post('/plan-estudio/guardar', [PlanEstudioController::class, 'guardarPlan'])->name('plan_estudio.guardar');
